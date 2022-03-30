@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Index</title>
+    <link
+      rel="stylesheet"
+      href="../node_modules/bootstrap/dist/css/bootstrap.css"
+    />
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
+    <Style>
+      body{
+        background-color: aliceblue;
+      }
+    </Style>
+    <script src="../node_modules/jquery/dist/jquery.js"></script>
+    <script src="../node_modules/jquery.cookie/jquery.cookie.js"></script>
+    <script>
+      $(function () {
+        $("#btnRegister").click(() => {
+          $.ajax({
+            method: "GET",
+            url: "Register.html",
+          }).then((resp) => {
+            $("#bodyContainer").html(resp);
+            $("#btn").click(function () {
+              var data = {
+                UserId: $("#UserId").val(),
+                UserName: $("#UserName").val(),
+                Email: $("#Email").val(),
+                Mobile: $("#Mobile").val(),
+                Password: $("#Password").val(),
+              };
+              $.ajax({
+                method: "POST",
+                url: "http://127.0.0.1:4400/registercustomer",
+                data: data,
+              });
+              alert("Registerd succesfully");
+              $.ajax({
+                method: "GET",
+                url: "login.html",
+              }).then((resp) => {
+                $("#bodyContainer").html(resp);
+              });
+            });
+
+            $("#UserId").keyup(() => {
+              var userid = $("#UserId").val();
+              $.ajax({
+                method: "GET",
+                url: "http://127.0.0.1:4400/getcustomers",
+              }).then((data) => {
+                for (var item of data) {
+                  if (item.UserID == userid) {
+                    $("#userError").html("User id taken try another");
+                  } else {
+                    $("#userError").html("User id available");
+                  }
+                }
+              });
+            });
+          });
+        });
+        $("#btnLogin").click(() => {
+          $.ajax({
+            method: "GET",
+            url: "login.html",
+          }).then((resp) => {
+            $("#bodyContainer").html(resp);
+            $("#btnNavLogin").click(() => {
+              var userdetils = {
+                UserId: $("#txtUserId").val(),
+                Password: $("#txtPwd").val(),
+              };
+              $.ajax({
+                method: "GET",
+                url: "http://127.0.0.1:4400/getcustomers",
+              }).then((resp) => {
+                var userdetils = resp.find(
+                  (user) => user.UserId == $("#txtUserId").val()
+                );
+                if (
+                  userdetils.UserId == $("#txtUserId").val() &&
+                  userdetils.Password == $("#txtPwd").val()
+                ) {
+                  $.cookie("userid", userdetils.UserId);
+                  $("#user").html(`Welcome ${userdetils.UserId}`);
+                  $.ajax({
+                    method: "GET",
+                    url: "shophome.html",
+                  }).then((resp) => {
+                    $("#bodyContainer").html(resp);
+                  });
+                } else {
+                  alert("Invalid passwod");
+                }
+              });
+            });
+          });
+        });
+
+        $("#btnSignOut").click(() => {
+          $.removeCookie("userid");
+          alert("Signed Out Sccesfully");
+          $("#user").html("");
+          $("#btnSignOut").html("Login");
+          $.ajax({
+            method: "GET",
+            url: "login.html",
+          }).then((resp) => {
+            $("#bodyContainer").html(resp);
+            $("#btnLogin").click(() => {
+              $.ajax({
+                method: "GET",
+                url: "login.html",
+              }).then((resp) => {
+                $("#bodyContainer").html(resp);
+                $("#btnNavLogin").click(() => {
+                  var userdetils = {
+                    UserId: $("#txtUserId").val(),
+                    Password: $("#txtPwd").val(),
+                  };
+                  $.ajax({
+                    method: "GET",
+                    url: "http://127.0.0.1:4400/getcustomers",
+                  }).then((resp) => {
+                    var userdetils = resp.find(
+                      (user) => user.UserId == $("#txtUserId").val()
+                    );
+                    if (
+                      userdetils.UserId == $("#txtUserId").val() &&
+                      userdetils.Password == $("#txtPwd").val()
+                    ) {
+                      $.cookie("userid", userdetils.UserId);
+                      $("#user").html(`Welcome ${userdetils.UserId}`);
+                      $.ajax({
+                        method: "GET",
+                        url: "shophome.html",
+                      }).then((resp) => {
+                        $("#bodyContainer").html(resp);
+                      });
+                    } else {
+                      alert("Invalid password");
+                    }
+                  });
+                });
+              });
+            });
+          });
+        });
+
+        function GetProducts() {
+          $.ajax({
+            method:'GET',
+            url:"http://127.0.0.1:4400/getproducts"
+          })
+          .then(res=>{
+            $.each(res,(key,value)=>{
+              $(`
+              <div class="card m-2 p-2" style="width:200px;">
+                <div class="card-header">
+                  <img src=${value.image} class="card-img-top" height="150px">
+                  </div>
+                <div class="card-body">
+                   <p>${value.title}</p> 
+                 </div> 
+                 <div class="card-footer">
+                  <button class="btn btn-danger w-100"><span class="bi bi-cart4"></span> Add to cart</button>
+                  </div>
+              </div>
+              `).appendTo("#productCatlog")
+            })
+          })
+        }
+
+        $("#btnShopping").click(() => {
+          if ($.cookie("userid") == undefined) {
+            $.ajax({
+              method: "GET",
+              url: "login.html",
+            }).then((resp) => {
+              $("#bodyContainer").html(resp);
+              $("#btnLogin").click(() => {
+                $.ajax({
+                  method: "GET",
+                  url: "login.html",
+                }).then((resp) => {
+                  $("#bodyContainer").html(resp);
+                  $("#btnNavLogin").click(() => {
+                    var userdetils = {
+                      UserId: $("#txtUserId").val(),
+                      Password: $("#txtPwd").val(),
+                    };
+                    $.ajax({
+                      method: "GET",
+                      url: "http://127.0.0.1:4400/getcustomers",
+                    }).then((resp) => {
+                      var userdetils = resp.find(
+                        (user) => user.UserId == $("#txtUserId").val()
+                      );
+                      if (
+                        userdetils.UserId == $("#txtUserId").val() &&
+                        userdetils.Password == $("#txtPwd").val()
+                      ) {
+                        $.cookie("userid", userdetils.UserId);
+                        $("#user").html(`Welcome ${userdetils.UserId}`);
+                        $.ajax({
+                          method: "GET",
+                          url: "shophome.html",
+                        }).then((resp) => {
+                          $("#bodyContainer").html(resp);
+                        });
+                      } else {
+                        alert("Invalid passwod");
+                      }
+                    });
+                  });
+                });
+              });
+            });
+          } else {
+            $.ajax({
+              method: "GET",
+              url: "products.html",
+            }).then((resp) => {
+              $("#bodyContainer").html(resp);
+              GetProducts();
+            });
+          }
+        });
+      });
+    </script>
+  </head>
+  <body class="container-fluid">
+    <header class="d-flex justify-content-between">
+      <div>
+        <h3 class="bg-dark text-center text-white mt-2 p-1">Shopping Online</h3>
+      </div>
+      <div>
+        <span id="user" style="font-style: italic; color: darkgreen"></span>
+        <button id="btnSignOut" class="btn btn-link">Sign Out</button>
+      </div>
+    </header>
+    <div class="row">
+      <div class="col-3">
+        <div class="mt-2">
+          <button id="btnRegister" class="btn btn-dark w-50">Register</button>
+        </div>
+        <div class="mt-2">
+          <button id="btnLogin" class="btn btn-dark w-50">Login</button>
+        </div>
+        <div class="mt-2">
+          <button id="btnShopping" class="btn btn-dark w-50">Shop</button>
+        </div>
+      </div>
+      <div class="col-7">
+        <div id="bodyContainer"></div>
+      </div>
+      <div class="col-2"></div>
+    </div>
+  </body>
+</html>
